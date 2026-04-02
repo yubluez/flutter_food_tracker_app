@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_food_tracker_app/models/food_tracker.dart';
+import 'package:flutter_food_tracker_app/services/supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -18,7 +20,7 @@ class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
   TextEditingController foodPriceCtrl = TextEditingController();
   TextEditingController foodPersonCtrl = TextEditingController();
   TextEditingController foodDateCtrl = TextEditingController();
-  String foodImageUrl = 'เช้า';
+  String? foodImageUrl = '';
 
   //ตัวแปรเก็บไฟล์ที่ใช้อัปโหลด
   File? file;
@@ -59,6 +61,61 @@ class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
     }
   }
   //-------------------------
+
+  // เมธอดอัปโหลดไฟล์และบันทึกข้อมูลจากการกดปุ่ม
+  Future<void> save() async {
+    // Validate UI ว่าผู้ใช้งานป้อนหรือเลือกข้อมูลครบหรือยัง ถ้ายังแสดงข้อมความแจ้ง
+    if (foodNameCtrl.text.isEmpty ||
+        foodPriceCtrl.text.isEmpty ||
+        foodPersonCtrl.text.isEmpty ||
+        foodDateCtrl.text.isEmpty ||
+        foodMeal.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('กรุณาป้อนข้อมูลให้ครบถ้วน'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return; // อย่าลืม return เพื่อให้ไม่ทำงานต่อ หรือ ให้ออกจากการทำงานของเมธอดนี้เลย
+    }
+
+    // สร้าง instance/object/ตัวแทน ของ SupabaseService เพื่อใช้งานเมธอดต่างๆ ที่สร้างไว้ใน SupabaseService
+    final service = SupabaseService();
+
+    // ตรวจสอบว่ามีการถ่ายหรือเลือกรูปหรือไม่ ถ้ามีก็อัปโหลดไฟล์ ไปที่ food_tracker_bk
+    //แล้วเอา URL ของไฟล์ที่อัปโหลดเก็บในตัวแปรเพื่อใช้บันทึกใน food_tracker_tb
+    if (file != null) {
+      // หาก file ไม่เท่ากับ null แปลว่าได้มีการถ่า/เลือกรูป
+      foodImageUrl = await service.uploadFile(file!);
+    }
+
+    // บันทึกข้อมูลลงใน food_tracker_tb
+    // แพ็กข้อมูล
+    final foodTracker = FoodTracker(
+      foodName: foodNameCtrl.text,
+      foodPrice: double.parse(foodPriceCtrl.text),
+      foodPerson: int.parse(foodPersonCtrl.text),
+      foodDate: foodDateCtrl.text,
+      foodImageUrl: foodImageUrl,
+      foodMeal: '',
+    );
+
+    // เรียกใช้งานเมธอด insertFood ที่สร้างไว้ใน SupabaseService เพื่อบันทึกข้อมูลลงใน food_tracker_tb
+    await service.insertFood(foodTracker);
+
+    // แจ้งผลการทำงาน (แสดงเป็น SnackBar or AlertDialog)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('บันทึกข้อมูลสำเร็จ'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    //ย้อนกลับไปยังหน้าหลัก (ShowAllTaskUi)
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +378,9 @@ class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
                 SizedBox(height: 20),
                 // ปุ่มบันทึก
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    save();
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(

@@ -37,21 +37,32 @@ class SupabaseService {
     return supabase.storage.from('food_tracker_bk').getPublicUrl(filename);
   }
 
-  // เมธอดเพิ่มข้อมูลไปยัง task_tb
+  // เมธอดเพิ่มข้อมูลไปยัง food_tracker_tb
   Future insertFood(FoodTracker foodTracker) async {
     //เพิ่มข้อมูลไปยัง food_tracker_tb
     await supabase.from('food_tracker_tb').insert(foodTracker.toJson());
   }
 
-  // เมธอดลบไฟล์ที่อัปโหลดไปยัง task_tb
-
-  // เมธอดแก้ไขข้อมูลใน -> task_tb
-  Future updateFood(int id, Map data) async {
-    await supabase.from('food_tracker_tb').update(data).eq('id', id);
+  // เมธอดลบไฟล์ที่อัปโหลดไปยัง food_tracker_tb
+  Future deleteFile(String filename) async {
+    // ลบไฟล์ที่อัปโหลดไปยัง food_tracker_tb
+    // ก่อนลบให้ตัดเลือกแค่ชื่อไฟล์ ไม่เอาที่อยู่ไฟล์
+    filename = filename.split('/').last;
+    await supabase.storage.from('food_tracker_tb').remove([filename]);
   }
 
-  // เมธอดลบข้อมูลจาก task_tb
-  Future deleteFood(int id) async {
+  // เมธอดแก้ไขข้อมูลใน food_tracker_tb
+  Future updateFood(String id, FoodTracker foodTracker) async {
+    // แก้ไขข้อมูลไปยัง food_tracker_tb
+    await supabase
+        .from('food_tracker_tb')
+        .update(foodTracker.toJson())
+        .eq('id', id);
+  }
+
+  // เมธอดลบข้อมูลจาก food_tracker_tb
+  Future deleteFood(String id) async {
+    // แก้ไขข้อมูลไปยัง food_tracker_tb
     await supabase.from('food_tracker_tb').delete().eq('id', id);
   }
 }
