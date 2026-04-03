@@ -16,7 +16,7 @@ class AddFoodTrackerUi extends StatefulWidget {
 class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
   // สร้างตัวควบคุม TextField และตัวแปรที่จะต้องเก็บข้อมูลที่ผู้ใช้ป้อนหรือเลือก เพื่อบันทึกใน food_tracker_tb
   TextEditingController foodNameCtrl = TextEditingController();
-  String foodMeal = '';
+  String foodMeal = 'เช้า';
   TextEditingController foodPriceCtrl = TextEditingController();
   TextEditingController foodPersonCtrl = TextEditingController();
   TextEditingController foodDateCtrl = TextEditingController();
@@ -98,7 +98,7 @@ class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
       foodPerson: int.parse(foodPersonCtrl.text),
       foodDate: foodDateCtrl.text,
       foodImageUrl: foodImageUrl,
-      foodMeal: '',
+      foodMeal: foodMeal,
     );
 
     // เรียกใช้งานเมธอด insertFood ที่สร้างไว้ใน SupabaseService เพื่อบันทึกข้อมูลลงใน food_tracker_tb
@@ -409,7 +409,7 @@ class _AddFoodTrackerUiState extends State<AddFoodTrackerUi> {
                       foodPriceCtrl.clear();
                       foodPersonCtrl.clear();
                       file = null;
-                      foodMeal = '';
+                      foodMeal = 'เช้า';
                       foodImageUrl = '';
                     });
                   },

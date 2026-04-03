@@ -185,6 +185,7 @@ class _UpdateDeleteFoodTrackerUiState extends State<UpdateDeleteFoodTrackerUi> {
     foodPersonCtrl.text = widget.foodTracker!.foodPerson.toString();
     foodDateCtrl.text = widget.foodTracker!.foodDate!;
     foodMeal = widget.foodTracker!.foodMeal;
+    foodImageUrl = widget.foodTracker!.foodImageUrl!;
   }
 
   @override
@@ -406,6 +407,7 @@ class _UpdateDeleteFoodTrackerUiState extends State<UpdateDeleteFoodTrackerUi> {
                 ),
                 TextField(
                   controller: foodPriceCtrl,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
@@ -487,7 +489,9 @@ class _UpdateDeleteFoodTrackerUiState extends State<UpdateDeleteFoodTrackerUi> {
                 ElevatedButton(
                   onPressed: () {
                     // ลบข้อมูล
-                    delete();
+                    delete().then((value) {
+                      Navigator.pop(context);
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
